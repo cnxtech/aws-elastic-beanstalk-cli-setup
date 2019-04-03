@@ -19,7 +19,7 @@ dim stdout: set stdout = fso.GetStandardStream(1)
 currentDirectory = left(WScript.ScriptFullName,(Len(WScript.ScriptFullName))-(len(WScript.ScriptName)))
 
 if NOT(isPythonInstalled()) then
-   downloadUrl = pythonDownload()
+   downloadUrl = getPythonDownloadUrl()
    stdout.WriteLine "Downloading Python from " + downloadUrl
    if len(downloadUrl) > 0 then
       if (installPython() = 0) then
@@ -52,10 +52,10 @@ function installPython()
    set stream = Nothing
    set http = Nothing
 
-   dim shell: set shell =  CreateObject("WScript.Shell")
+   dim shell: set shell = CreateObject("WScript.Shell")
    stdout.WriteLine "Silently installing Python. Do not close this window."
    exitCode = shell.Run("python3.7.3.exe " + "/quiet InstallAllUsers=1 PrependPath=1",,true) 'Wait on return
-   if (exitCode = 0) then
+   if (exitCode == 0) then
       stdout.WriteLine "Installation completed successfully."
    else
       stdout.WriteLine "Installation failed with exit code " & exitCode 
@@ -96,7 +96,7 @@ function openNewCommandWindow()
    set wmi = Nothing
 end function
 
-function pythonDownload()
+function getPythonDownloadUrl()
    dim shell : set shell = CreateObject("WScript.Shell")
    dim process: set process = shell.Environment("Process")
 
@@ -104,13 +104,13 @@ function pythonDownload()
    select case LCase(processor)
       case "x86"
       stdout.WriteLine "Downloading x86 version of Python."
-      pythonDownload = "https://www.python.org/ftp/python/3.7.3/python-3.7.3-webinstall.exe"
+      getPythonDownloadUrl = "https://www.python.org/ftp/python/3.7.3/python-3.7.3-webinstall.exe"
    case "amd64"
       stdout.WriteLine "Downloading x64 version of Python."
-      pythonDownload = "https://www.python.org/ftp/python/3.7.3/python-3.7.3-amd64-webinstall.exe"
+      getPythonDownloadUrl = "https://www.python.org/ftp/python/3.7.3/python-3.7.3-amd64-webinstall.exe"
    case else
       stdout.WriteLine "Unable to determine the Python download url for processor type: " & processor
-      pythonDownload = ""
+      getPythonDownloadUrl = ""
    end select
 
    set process = Nothing
